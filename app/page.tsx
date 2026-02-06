@@ -213,7 +213,13 @@ export default function Home() {
         setScannedClauses(clauses)
         setStatusMessage(`Document parsed: ${clauses.length} clauses identified`)
       } else {
-        const errorMsg = result.error || result.response.message || 'Error scanning contract'
+        let errorMsg = result.error || result.response.message || 'Error scanning contract'
+
+        // Special handling for credits exhausted
+        if (errorMsg.includes('429') || errorMsg.includes('Credits exhausted')) {
+          errorMsg = 'API Credits exhausted. Please contact support to add more credits to your account.'
+        }
+
         setStatusMessage(errorMsg)
         console.error('Scanner error:', result)
       }
@@ -252,7 +258,13 @@ export default function Home() {
         setEqualizerSummary(summary)
         setStatusMessage(`Analysis complete: ${summary?.unfair_clauses || 0} of ${summary?.total_clauses || 0} clauses flagged`)
       } else {
-        const errorMsg = result.error || result.response.message || 'Error analyzing contract'
+        let errorMsg = result.error || result.response.message || 'Error analyzing contract'
+
+        // Special handling for credits exhausted
+        if (errorMsg.includes('429') || errorMsg.includes('Credits exhausted')) {
+          errorMsg = 'API Credits exhausted. Please contact support to add more credits to your account.'
+        }
+
         setStatusMessage(errorMsg)
         console.error('Equalizer error:', result)
       }
@@ -293,7 +305,13 @@ export default function Home() {
         setShowEmailModal(true)
         setStatusMessage('Email generated successfully')
       } else {
-        const errorMsg = result.error || result.response.message || 'Error generating email'
+        let errorMsg = result.error || result.response.message || 'Error generating email'
+
+        // Special handling for credits exhausted
+        if (errorMsg.includes('429') || errorMsg.includes('Credits exhausted')) {
+          errorMsg = 'API Credits exhausted. Please contact support to add more credits to your account.'
+        }
+
         setStatusMessage(errorMsg)
         console.error('Emailer error:', result)
       }
@@ -426,8 +444,22 @@ export default function Home() {
 
       {/* Status Message Bar */}
       {statusMessage && (
-        <div className="bg-blue-50 border-b border-blue-200 px-8 py-3">
-          <p className="text-sm text-blue-800">{statusMessage}</p>
+        <div className={`border-b px-8 py-3 ${
+          statusMessage.includes('error') || statusMessage.includes('Error') || statusMessage.includes('failed') || statusMessage.includes('Credits')
+            ? 'bg-red-50 border-red-200'
+            : statusMessage.includes('success') || statusMessage.includes('complete') || statusMessage.includes('identified')
+            ? 'bg-green-50 border-green-200'
+            : 'bg-blue-50 border-blue-200'
+        }`}>
+          <p className={`text-sm ${
+            statusMessage.includes('error') || statusMessage.includes('Error') || statusMessage.includes('failed') || statusMessage.includes('Credits')
+              ? 'text-red-800'
+              : statusMessage.includes('success') || statusMessage.includes('complete') || statusMessage.includes('identified')
+              ? 'text-green-800'
+              : 'text-blue-800'
+          }`}>
+            {statusMessage}
+          </p>
         </div>
       )}
 
