@@ -61,6 +61,7 @@ export default function Home() {
   // State management
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [contractText, setContractText] = useState('')
+  const [uploadedAssetIds, setUploadedAssetIds] = useState<string[]>([])
   const [scannedClauses, setScannedClauses] = useState<Clause[]>([])
   const [analyzedClauses, setAnalyzedClauses] = useState<AnalyzedClause[]>([])
   const [equalizerSummary, setEqualizerSummary] = useState<EqualizerSummary | null>(null)
@@ -70,27 +71,60 @@ export default function Home() {
   const [isScanning, setIsScanning] = useState(false)
   const [isEqualizing, setIsEqualizing] = useState(false)
   const [isGeneratingEmail, setIsGeneratingEmail] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const [showEmailModal, setShowEmailModal] = useState(false)
   const [expandedClauseId, setExpandedClauseId] = useState<number | null>(null)
   const [statusMessage, setStatusMessage] = useState('')
   const [copySuccess, setCopySuccess] = useState(false)
 
   // File upload handler
-  const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file && file.type === 'application/pdf' && file.size <= 10 * 1024 * 1024) {
-      setUploadedFile(file)
-      setStatusMessage(`File loaded: ${file.name}`)
+    if (!file) return
 
-      // Extract text from PDF (simplified - using FileReader for demo)
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        const text = event.target?.result as string
-        setContractText(text || 'Contract text extracted from PDF')
+    if (file.type !== 'application/pdf') {
+      setStatusMessage('Please upload a PDF file')
+      return
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setStatusMessage('File size must be under 10MB')
+      return
+    }
+
+    setIsUploading(true)
+    setStatusMessage(`Uploading ${file.name}...`)
+
+    try {
+      // Upload PDF to get asset_id for agent processing
+      const uploadResult = await uploadFiles(file)
+
+      console.log('Upload result:', uploadResult)
+
+      if (uploadResult.success && uploadResult.asset_ids.length > 0) {
+        setUploadedFile(file)
+        setUploadedAssetIds(uploadResult.asset_ids)
+        setStatusMessage(`File uploaded: ${file.name}`)
+
+        // Also extract some text for display purposes
+        const reader = new FileReader()
+        reader.onload = (event) => {
+          const arrayBuffer = event.target?.result as ArrayBuffer
+          const text = new TextDecoder().decode(arrayBuffer)
+          // Extract visible text (basic approach - agent will do proper parsing)
+          const basicText = text.replace(/[^\x20-\x7E\n]/g, '').trim()
+          setContractText(basicText || `PDF: ${file.name}`)
+        }
+        reader.readAsArrayBuffer(file)
+      } else {
+        setStatusMessage('Upload failed. Please try again.')
+        console.error('Upload failed:', uploadResult)
       }
-      reader.readAsText(file)
-    } else {
-      setStatusMessage('Please upload a PDF file under 10MB')
+    } catch (error) {
+      setStatusMessage('Upload error. Please try again.')
+      console.error('Upload error:', error)
+    } finally {
+      setIsUploading(false)
     }
   }, [])
 
@@ -99,25 +133,57 @@ export default function Home() {
     e.preventDefault()
   }, [])
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault()
     const file = e.dataTransfer.files[0]
-    if (file && file.type === 'application/pdf' && file.size <= 10 * 1024 * 1024) {
-      setUploadedFile(file)
-      setStatusMessage(`File loaded: ${file.name}`)
+    if (!file) return
 
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        const text = event.target?.result as string
-        setContractText(text || 'Contract text extracted from PDF')
+    if (file.type !== 'application/pdf') {
+      setStatusMessage('Please upload a PDF file')
+      return
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setStatusMessage('File size must be under 10MB')
+      return
+    }
+
+    setIsUploading(true)
+    setStatusMessage(`Uploading ${file.name}...`)
+
+    try {
+      const uploadResult = await uploadFiles(file)
+
+      console.log('Upload result (drag):', uploadResult)
+
+      if (uploadResult.success && uploadResult.asset_ids.length > 0) {
+        setUploadedFile(file)
+        setUploadedAssetIds(uploadResult.asset_ids)
+        setStatusMessage(`File uploaded: ${file.name}`)
+
+        const reader = new FileReader()
+        reader.onload = (event) => {
+          const arrayBuffer = event.target?.result as ArrayBuffer
+          const text = new TextDecoder().decode(arrayBuffer)
+          const basicText = text.replace(/[^\x20-\x7E\n]/g, '').trim()
+          setContractText(basicText || `PDF: ${file.name}`)
+        }
+        reader.readAsArrayBuffer(file)
+      } else {
+        setStatusMessage('Upload failed. Please try again.')
+        console.error('Upload failed:', uploadResult)
       }
-      reader.readAsText(file)
+    } catch (error) {
+      setStatusMessage('Upload error. Please try again.')
+      console.error('Upload error:', error)
+    } finally {
+      setIsUploading(false)
     }
   }, [])
 
   // Step 1: Scan Contract
   const handleScanContract = async () => {
-    if (!contractText) {
+    if (!uploadedFile && !contractText) {
       setStatusMessage('Please upload a contract first')
       return
     }
@@ -126,20 +192,35 @@ export default function Home() {
     setStatusMessage('Parsing document...')
 
     try {
+      // Build message for scanner agent
+      let message = ''
+      if (uploadedAssetIds.length > 0) {
+        message = `Please scan the uploaded PDF contract and extract all clauses. Break the document into numbered clauses and identify the topic for each clause (Payment, Termination, IP, Non-compete, Confidentiality, or Other). Ignore headers, footers, and signatures.`
+      } else {
+        message = `Please scan this contract text and extract clauses with topics: "${contractText.substring(0, 3000)}"`
+      }
+
       const result = await callAIAgent(
-        `Please scan this contract text and extract clauses: '${contractText}'`,
-        SCANNER_AGENT_ID
+        message,
+        SCANNER_AGENT_ID,
+        uploadedAssetIds.length > 0 ? { assets: uploadedAssetIds } : undefined
       )
+
+      console.log('Scanner Agent Result:', result)
 
       if (result.success && result.response.status === 'success') {
         const clauses = result.response.result.clauses || []
         setScannedClauses(clauses)
         setStatusMessage(`Document parsed: ${clauses.length} clauses identified`)
       } else {
-        setStatusMessage('Error scanning contract')
+        const errorMsg = result.error || result.response.message || 'Error scanning contract'
+        setStatusMessage(errorMsg)
+        console.error('Scanner error:', result)
       }
     } catch (error) {
-      setStatusMessage('Error scanning contract')
+      const errorMsg = error instanceof Error ? error.message : 'Error scanning contract'
+      setStatusMessage(errorMsg)
+      console.error('Scanner exception:', error)
     } finally {
       setIsScanning(false)
     }
@@ -158,9 +239,11 @@ export default function Home() {
     try {
       const clausesMessage = JSON.stringify(scannedClauses)
       const result = await callAIAgent(
-        `Analyze these contract clauses for fairness: ${clausesMessage}`,
+        `Analyze these contract clauses for fairness and apply the mutual fairness principle. Rewrite unfair clauses to balanced industry-standard language: ${clausesMessage}`,
         EQUALIZER_AGENT_ID
       )
+
+      console.log('Equalizer Agent Result:', result)
 
       if (result.success && result.response.status === 'success') {
         const analyzed = result.response.result.analyzed_clauses || []
@@ -169,10 +252,14 @@ export default function Home() {
         setEqualizerSummary(summary)
         setStatusMessage(`Analysis complete: ${summary?.unfair_clauses || 0} of ${summary?.total_clauses || 0} clauses flagged`)
       } else {
-        setStatusMessage('Error analyzing contract')
+        const errorMsg = result.error || result.response.message || 'Error analyzing contract'
+        setStatusMessage(errorMsg)
+        console.error('Equalizer error:', result)
       }
     } catch (error) {
-      setStatusMessage('Error analyzing contract')
+      const errorMsg = error instanceof Error ? error.message : 'Error analyzing contract'
+      setStatusMessage(errorMsg)
+      console.error('Equalizer exception:', error)
     } finally {
       setIsEqualizing(false)
     }
@@ -195,19 +282,25 @@ export default function Home() {
         .join(', ')
 
       const result = await callAIAgent(
-        `Generate a professional email to request these contract changes: ${changesDescription}`,
+        `Generate a calm, professional email to request these contract changes. Frame them as "standardization for compliance and mutual protection": ${changesDescription}`,
         EMAILER_AGENT_ID
       )
+
+      console.log('Emailer Agent Result:', result)
 
       if (result.success && result.response.status === 'success') {
         setGeneratedEmail(result.response.result)
         setShowEmailModal(true)
         setStatusMessage('Email generated successfully')
       } else {
-        setStatusMessage('Error generating email')
+        const errorMsg = result.error || result.response.message || 'Error generating email'
+        setStatusMessage(errorMsg)
+        console.error('Emailer error:', result)
       }
     } catch (error) {
-      setStatusMessage('Error generating email')
+      const errorMsg = error instanceof Error ? error.message : 'Error generating email'
+      setStatusMessage(errorMsg)
+      console.error('Emailer exception:', error)
     } finally {
       setIsGeneratingEmail(false)
     }
@@ -242,6 +335,21 @@ export default function Home() {
     URL.revokeObjectURL(url)
   }
 
+  // Reset all state to start over
+  const handleReset = () => {
+    setUploadedFile(null)
+    setContractText('')
+    setUploadedAssetIds([])
+    setScannedClauses([])
+    setAnalyzedClauses([])
+    setEqualizerSummary(null)
+    setGeneratedEmail(null)
+    setShowEmailModal(false)
+    setExpandedClauseId(null)
+    setStatusMessage('Ready to analyze a new contract')
+    setCopySuccess(false)
+  }
+
   const unfairClauses = analyzedClauses.filter(c => c.fairness_verdict === 'Unfair')
 
   return (
@@ -254,17 +362,32 @@ export default function Home() {
               The Equalizer
             </h1>
 
-            <div className="flex items-center gap-4">
-              <label htmlFor="file-upload">
+            <div className="flex items-center gap-3">
+              {uploadedFile && (
                 <Button
-                  type="button"
-                  className="bg-[#2D2D2D] text-white hover:bg-[#3D3D3D]"
-                  onClick={() => document.getElementById('file-upload')?.click()}
+                  variant="outline"
+                  onClick={handleReset}
+                  className="border-gray-300 text-gray-600 hover:bg-gray-50"
+                  size="sm"
                 >
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload Contract
+                  <X className="w-4 h-4 mr-2" />
+                  New Contract
                 </Button>
-              </label>
+              )}
+
+              <Button
+                type="button"
+                className="bg-[#2D2D2D] text-white hover:bg-[#3D3D3D]"
+                onClick={() => document.getElementById('file-upload')?.click()}
+                disabled={isUploading}
+              >
+                {isUploading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Upload className="w-4 h-4 mr-2" />
+                )}
+                Upload Contract
+              </Button>
               <input
                 id="file-upload"
                 type="file"
@@ -312,7 +435,7 @@ export default function Home() {
       <div className="mx-auto px-8 py-8">
         {/* Upload Zone (shown when no file uploaded) */}
         {!uploadedFile && (
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto space-y-4">
             <div
               onDragOver={handleDragOver}
               onDrop={handleDrop}
@@ -326,6 +449,36 @@ export default function Home() {
               <p className="text-sm text-gray-500">
                 or click to browse • PDF only • Max 10MB
               </p>
+            </div>
+
+            <div className="text-center">
+              <p className="text-sm text-gray-500 mb-3">
+                Don&apos;t have a PDF handy? Try with sample text:
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const sampleText = `FREELANCE AGREEMENT
+
+PAYMENT TERMS: Contractor agrees to complete all deliverables before receiving any payment. Client may withhold payment indefinitely for any reason deemed appropriate by Client. All invoices are subject to Client approval with no specified timeframe.
+
+TERMINATION: Client reserves the right to terminate this agreement immediately without notice, cause, or compensation to Contractor. Contractor must provide 60 days written notice before termination and complete all pending work without compensation during notice period.
+
+INTELLECTUAL PROPERTY: All work product, concepts, ideas, drafts, and related materials become the exclusive property of Client immediately upon creation, whether or not Client compensates Contractor. Client may use, modify, or sell all work without attribution or additional payment.
+
+NON-COMPETE: Contractor agrees not to work for any competing business or in the same industry for 5 years following contract termination within a 500-mile radius. This applies regardless of compensation received.
+
+CONFIDENTIALITY: Contractor must maintain confidentiality of all Client information indefinitely. Client may freely discuss or share Contractor's work, methods, and proprietary information without restriction.`
+
+                  setContractText(sampleText)
+                  setUploadedFile(new File(['sample'], 'sample-contract.txt', { type: 'text/plain' }))
+                  setStatusMessage('Sample contract loaded - click "Scan Contract" to begin')
+                }}
+                className="border-[#2D2D2D] text-[#2D2D2D]"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Load Sample Contract
+              </Button>
             </div>
           </div>
         )}
