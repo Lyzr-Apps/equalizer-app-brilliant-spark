@@ -1,0 +1,134 @@
+{
+  "agent_name": "Equalizer Agent",
+  "agent_id": "698589c1a791e6e318b8de57",
+  "agent_purpose": "contract_fairness_auditor",
+  "description": "Analyzes contract clauses for fairness and rewrites unfair terms to balanced industry-standard language",
+  "response_schema": {
+    "status": "string",
+    "result": {
+      "analyzed_clauses": [
+        {
+          "clause_id": "number",
+          "original_text": "string",
+          "topic": "string",
+          "fairness_verdict": "string",
+          "reasoning": "string",
+          "rewritten_text": "string",
+          "changes_made": "string"
+        }
+      ],
+      "summary": {
+        "total_clauses": "number",
+        "fair_clauses": "number",
+        "unfair_clauses": "number",
+        "categories_affected": [
+          "string"
+        ]
+      }
+    },
+    "metadata": {
+      "agent_name": "string",
+      "timestamp": "string"
+    }
+  },
+  "example_response": {
+    "status": "success",
+    "result": {
+      "analyzed_clauses": [
+        {
+          "clause_id": 1,
+          "original_text": "Contractor agrees to complete all work before receiving payment. Client may withhold payment indefinitely for any reason.",
+          "topic": "Payment",
+          "fairness_verdict": "Unfair",
+          "reasoning": "This clause is highly one-sided. It requires the contractor to fully complete all work before payment and allows the client to withhold payment for any reason, for an unlimited time. Mutual fairness and industry standards require that payment cannot be unreasonably withheld or delayed, and that objective criteria for payment acceptance should be in place.",
+          "rewritten_text": "Contractor will be paid upon satisfactory completion of agreed-upon milestones or deliverables. Client may only withhold payment for material defects or failures, provided written notice specifying reasons is given within 10 business days of receipt. Payment may not be unreasonably delayed or withheld.",
+          "changes_made": "Added milestone/deliverable-based payment; set objective grounds for withholding payment; added notice and timeline requirements; prevented indefinite withholding."
+        },
+        {
+          "clause_id": 2,
+          "original_text": "Client may terminate this agreement at any time without notice or compensation. Contractor must provide 60 days written notice.",
+          "topic": "Termination",
+          "fairness_verdict": "Unfair",
+          "reasoning": "This clause advantages the client by allowing immediate, uncompensated termination without notice, while requiring the contractor to provide extended notice. Industry standards support mutual notice periods and proportional compensation for work performed prior to termination.",
+          "rewritten_text": "Either party may terminate this agreement by providing 30 days written notice to the other party. Compensation shall be provided to the contractor for all work performed up to the effective termination date.",
+          "changes_made": "Made notice period mutual and reasonable; added compensation requirement for completed work."
+        },
+        {
+          "clause_id": 3,
+          "original_text": "All work product, including drafts and concepts, becomes exclusive property of Client upon creation.",
+          "topic": "IP",
+          "fairness_verdict": "Unfair",
+          "reasoning": "This clause gives the client exclusive ownership of all work product (including early drafts and concepts) upon creation, with no provision for payment, acceptance, or use restrictions. Standard practice is that IP passes to the client only after acceptance and payment, and often excludes background IP or materials unrelated to the deliverables.",
+          "rewritten_text": "Upon full payment for deliverables, all intellectual property rights in the final work product shall transfer to the client. Contractor retains rights to any background materials not specifically created for the client or included in the deliverables.",
+          "changes_made": "Limited IP transfer to final deliverables upon payment; preserved contractor's rights in pre-existing IP."
+        }
+      ],
+      "summary": {
+        "total_clauses": 3,
+        "fair_clauses": 0,
+        "unfair_clauses": 3,
+        "categories_affected": [
+          "Payment",
+          "Termination",
+          "IP"
+        ]
+      }
+    },
+    "metadata": {
+      "agent_name": "Equalizer Agent",
+      "timestamp": "2024-06-09T16:32:20Z"
+    }
+  },
+  "is_actual_tested": true,
+  "test_timestamp": "2026-02-06T06:29:23.596382",
+  "test_message_used": "Hello, provide a sample response",
+  "actual_test_response": {
+    "status": "success",
+    "result": {
+      "analyzed_clauses": [
+        {
+          "clause_id": 1,
+          "original_text": "Contractor agrees to complete all work before receiving payment. Client may withhold payment indefinitely for any reason.",
+          "topic": "Payment",
+          "fairness_verdict": "Unfair",
+          "reasoning": "This clause is highly one-sided. It requires the contractor to fully complete all work before payment and allows the client to withhold payment for any reason, for an unlimited time. Mutual fairness and industry standards require that payment cannot be unreasonably withheld or delayed, and that objective criteria for payment acceptance should be in place.",
+          "rewritten_text": "Contractor will be paid upon satisfactory completion of agreed-upon milestones or deliverables. Client may only withhold payment for material defects or failures, provided written notice specifying reasons is given within 10 business days of receipt. Payment may not be unreasonably delayed or withheld.",
+          "changes_made": "Added milestone/deliverable-based payment; set objective grounds for withholding payment; added notice and timeline requirements; prevented indefinite withholding."
+        },
+        {
+          "clause_id": 2,
+          "original_text": "Client may terminate this agreement at any time without notice or compensation. Contractor must provide 60 days written notice.",
+          "topic": "Termination",
+          "fairness_verdict": "Unfair",
+          "reasoning": "This clause advantages the client by allowing immediate, uncompensated termination without notice, while requiring the contractor to provide extended notice. Industry standards support mutual notice periods and proportional compensation for work performed prior to termination.",
+          "rewritten_text": "Either party may terminate this agreement by providing 30 days written notice to the other party. Compensation shall be provided to the contractor for all work performed up to the effective termination date.",
+          "changes_made": "Made notice period mutual and reasonable; added compensation requirement for completed work."
+        },
+        {
+          "clause_id": 3,
+          "original_text": "All work product, including drafts and concepts, becomes exclusive property of Client upon creation.",
+          "topic": "IP",
+          "fairness_verdict": "Unfair",
+          "reasoning": "This clause gives the client exclusive ownership of all work product (including early drafts and concepts) upon creation, with no provision for payment, acceptance, or use restrictions. Standard practice is that IP passes to the client only after acceptance and payment, and often excludes background IP or materials unrelated to the deliverables.",
+          "rewritten_text": "Upon full payment for deliverables, all intellectual property rights in the final work product shall transfer to the client. Contractor retains rights to any background materials not specifically created for the client or included in the deliverables.",
+          "changes_made": "Limited IP transfer to final deliverables upon payment; preserved contractor's rights in pre-existing IP."
+        }
+      ],
+      "summary": {
+        "total_clauses": 3,
+        "fair_clauses": 0,
+        "unfair_clauses": 3,
+        "categories_affected": [
+          "Payment",
+          "Termination",
+          "IP"
+        ]
+      }
+    },
+    "metadata": {
+      "agent_name": "Equalizer Agent",
+      "timestamp": "2024-06-09T16:32:20Z"
+    }
+  },
+  "test_passed": true
+}

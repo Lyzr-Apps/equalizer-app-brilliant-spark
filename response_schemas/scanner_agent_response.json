@@ -1,0 +1,84 @@
+{
+  "agent_name": "Scanner Agent",
+  "agent_id": "698589a41caa4e686dd66e59",
+  "agent_purpose": "contract_scanner",
+  "description": "Extracts and categorizes contract clauses from PDF documents into structured JSON format",
+  "response_schema": {
+    "status": "string",
+    "result": {
+      "clauses": [
+        {
+          "clause_id": "number",
+          "text": "string",
+          "topic": "string"
+        }
+      ],
+      "total_clauses": "number",
+      "document_name": "string"
+    },
+    "metadata": {
+      "agent_name": "string",
+      "timestamp": "string"
+    }
+  },
+  "example_response": {
+    "status": "success",
+    "result": {
+      "clauses": [
+        {
+          "clause_id": 1,
+          "text": "Contractor agrees to complete all work before receiving payment. Client may withhold payment indefinitely for any reason.",
+          "topic": "Payment"
+        },
+        {
+          "clause_id": 2,
+          "text": "Client may terminate this agreement at any time without notice or compensation. Contractor must provide 60 days written notice.",
+          "topic": "Termination"
+        },
+        {
+          "clause_id": 3,
+          "text": "All work product, including drafts and concepts, becomes exclusive property of Client upon creation.",
+          "topic": "IP"
+        }
+      ],
+      "total_clauses": 3,
+      "document_name": "Extracted Text Input"
+    },
+    "metadata": {
+      "agent_name": "Scanner Agent",
+      "timestamp": "2024-06-10T20:05:30Z"
+    }
+  },
+  "is_actual_tested": true,
+  "test_timestamp": "2026-02-06T06:29:08.843906",
+  "test_message_used": "Hello, provide a sample response",
+  "actual_test_response": {
+    "status": "success",
+    "result": {
+      "clauses": [
+        {
+          "clause_id": 1,
+          "text": "Contractor agrees to complete all work before receiving payment. Client may withhold payment indefinitely for any reason.",
+          "topic": "Payment"
+        },
+        {
+          "clause_id": 2,
+          "text": "Client may terminate this agreement at any time without notice or compensation. Contractor must provide 60 days written notice.",
+          "topic": "Termination"
+        },
+        {
+          "clause_id": 3,
+          "text": "All work product, including drafts and concepts, becomes exclusive property of Client upon creation.",
+          "topic": "IP"
+        }
+      ],
+      "total_clauses": 3,
+      "document_name": "Extracted Text Input"
+    },
+    "metadata": {
+      "agent_name": "Scanner Agent",
+      "timestamp": "2024-06-10T20:05:30Z"
+    }
+  },
+  "test_passed": true
+}

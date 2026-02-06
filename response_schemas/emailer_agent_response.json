@@ -1,0 +1,62 @@
+{
+  "agent_name": "Emailer Agent",
+  "agent_id": "698589e6a791e6e318b8de60",
+  "agent_purpose": "email_generator",
+  "description": "Generates professional, non-confrontational emails for contract change requests",
+  "response_schema": {
+    "status": "string",
+    "result": {
+      "email_subject": "string",
+      "email_body": "string",
+      "tone": "string",
+      "key_points": [
+        "string"
+      ],
+      "closing_recommendation": "string"
+    },
+    "metadata": {
+      "agent_name": "string",
+      "timestamp": "string"
+    }
+  },
+  "example_response": {
+    "status": "success",
+    "result": {
+      "email_subject": "Proposed Standardization of Contract Terms",
+      "email_body": "Dear [Recipient],\n\nI hope this message finds you well. We deeply value our ongoing partnership and are committed to maintaining clear, mutually beneficial agreements as we move forward together.\n\nTo align with industry best practices and ensure compliance for both parties, we are proposing a few standard updates to our contract. These adjustments aim to create greater clarity and fairness, supporting our shared interests and long-term collaboration.\n\nThe key changes we propose are as follows:\n\n- Updating the payment clause to a milestone-based structure with 30-day payment terms for greater transparency and predictability.\n- Equalizing the termination clause so that both parties have a consistent 30-day notice period, reinforcing fairness and flexibility.\n- Modifying the intellectual property clause to include appropriate credit attribution, recognizing the contributions of all parties involved.\n\nWe believe these changes will help protect both sides and keep our agreement in line with evolving industry standards. Please let us know if you have any questions or would like to discuss any of these points further.\n\nWe look forward to your feedback and to continuing our successful partnership.\n\nBest regards,\n[Your Name]",
+      "tone": "Professional|Collaborative|Non-confrontational",
+      "key_points": [
+        "Payment clause updated to milestone-based payments with 30-day terms",
+        "Termination clause standardized to 30-day notice for both parties",
+        "IP clause revised to ensure proper credit attribution"
+      ],
+      "closing_recommendation": "Please review the suggested changes and let us know if you have any questions or would like to discuss them further."
+    },
+    "metadata": {
+      "agent_name": "Emailer Agent",
+      "timestamp": "2024-06-10T17:28:00Z"
+    }
+  },
+  "is_actual_tested": true,
+  "test_timestamp": "2026-02-06T06:29:38.475364",
+  "test_message_used": "Hello, provide a sample response",
+  "actual_test_response": {
+    "status": "success",
+    "result": {
+      "email_subject": "Proposed Standardization of Contract Terms",
+      "email_body": "Dear [Recipient],\n\nI hope this message finds you well. We deeply value our ongoing partnership and are committed to maintaining clear, mutually beneficial agreements as we move forward together.\n\nTo align with industry best practices and ensure compliance for both parties, we are proposing a few standard updates to our contract. These adjustments aim to create greater clarity and fairness, supporting our shared interests and long-term collaboration.\n\nThe key changes we propose are as follows:\n\n- Updating the payment clause to a milestone-based structure with 30-day payment terms for greater transparency and predictability.\n- Equalizing the termination clause so that both parties have a consistent 30-day notice period, reinforcing fairness and flexibility.\n- Modifying the intellectual property clause to include appropriate credit attribution, recognizing the contributions of all parties involved.\n\nWe believe these changes will help protect both sides and keep our agreement in line with evolving industry standards. Please let us know if you have any questions or would like to discuss any of these points further.\n\nWe look forward to your feedback and to continuing our successful partnership.\n\nBest regards,\n[Your Name]",
+      "tone": "Professional|Collaborative|Non-confrontational",
+      "key_points": [
+        "Payment clause updated to milestone-based payments with 30-day terms",
+        "Termination clause standardized to 30-day notice for both parties",
+        "IP clause revised to ensure proper credit attribution"
+      ],
+      "closing_recommendation": "Please review the suggested changes and let us know if you have any questions or would like to discuss them further."
+    },
+    "metadata": {
+      "agent_name": "Emailer Agent",
+      "timestamp": "2024-06-10T17:28:00Z"
+    }
+  },
+  "test_passed": true
+}

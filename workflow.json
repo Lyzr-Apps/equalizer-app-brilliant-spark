@@ -1,0 +1,60 @@
+{
+  "workflow_name": "The Equalizer Contract Analysis System",
+  "workflow_type": "Linear Sequential Flow",
+  "nodes": [
+    {
+      "id": "input_node",
+      "type": "Input",
+      "label": "Contract Upload",
+      "nodeCategory": "input"
+    },
+    {
+      "id": "scanner_agent",
+      "type": "Agent",
+      "label": "Scanner Agent",
+      "nodeCategory": "agent",
+      "agent_id": "698589a41caa4e686dd66e59",
+      "agent_name": "Scanner Agent"
+    },
+    {
+      "id": "equalizer_agent",
+      "type": "Agent",
+      "label": "Equalizer Agent",
+      "nodeCategory": "agent",
+      "agent_id": "698589c1a791e6e318b8de57",
+      "agent_name": "Equalizer Agent"
+    },
+    {
+      "id": "emailer_agent",
+      "type": "Agent",
+      "label": "Emailer Agent",
+      "nodeCategory": "agent",
+      "agent_id": "698589e6a791e6e318b8de60",
+      "agent_name": "Emailer Agent"
+    },
+    {
+      "id": "output_node",
+      "type": "Output",
+      "label": "Results Output",
+      "nodeCategory": "end"
+    }
+  ],
+  "edges": [
+    {
+      "source": "input_node",
+      "target": "scanner_agent"
+    },
+    {
+      "source": "scanner_agent",
+      "target": "equalizer_agent"
+    },
+    {
+      "source": "equalizer_agent",
+      "target": "emailer_agent"
+    },
+    {
+      "source": "emailer_agent",
+      "target": "output_node"
+    }
+  ]
+}

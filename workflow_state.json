@@ -1,0 +1,36 @@
+{
+  "workflow_name": "The Equalizer Contract Analysis System",
+  "workflow_type": "Linear Sequential Flow",
+  "created_at": "2026-02-06",
+  "agents": [
+    {
+      "name": "Scanner Agent",
+      "agent_id": "698589a41caa4e686dd66e59",
+      "type": "Independent",
+      "purpose": "contract_scanner",
+      "trigger": "Scan Contract on Workspace",
+      "position": 1
+    },
+    {
+      "name": "Equalizer Agent",
+      "agent_id": "698589c1a791e6e318b8de57",
+      "type": "Independent",
+      "purpose": "contract_fairness_auditor",
+      "trigger": "Equalize on Workspace",
+      "position": 2
+    },
+    {
+      "name": "Emailer Agent",
+      "agent_id": "698589e6a791e6e318b8de60",
+      "type": "Independent",
+      "purpose": "email_generator",
+      "trigger": "Generate Email on Results Panel",
+      "position": 3
+    }
+  ],
+  "workflow_structure": {
+    "nodes": 5,
+    "edges": 4,
+    "flow": "Input → Scanner → Equalizer → Emailer → Output"
+  }
+}
